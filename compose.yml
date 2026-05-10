@@ -1,0 +1,49 @@
+version: "3.9"
+services:
+  app:
+    container_name: app
+    build: ./infra/php
+    volumes:
+      - ./src:/data
+  web:
+    container_name: web
+    image: nginx:1.30-alpine
+    ports:
+      - 8080:80
+    volumes:
+      - ./src:/data
+      - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    working_dir: /data
+  db:
+    container_name: db
+    build: ./infra/mysql
+    platform: linux/arm64/v8
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: phper
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_ROOT_HOST: "%"
+      TZ: Asia/Tokyo
+    volumes:
+      - db-store:/var/lib/mysql
+      - ./infra/init:/docker-entrypoint-initdb.d
+    ports:
+      - 3306:3306
+  db-test:
+    container_name: db-test
+    build: ./infra/mysql-test
+    platform: linux/arm64/v8
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: phper
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_ROOT_HOST: "%"
+      TZ: Asia/Tokyo
+    volumes:
+      - ./infra/init:/docker-entrypoint-initdb.d
+    ports:
+      - 33060:3306
+volumes:
+  db-store:
