@@ -45,5 +45,13 @@ services:
       - ./infra/init:/docker-entrypoint-initdb.d
     ports:
       - 33060:3306
+  redis:
+    container_name: redis
+    image: redis:7.4-alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-store:/data
 volumes:
   db-store:
+  redis-store:
